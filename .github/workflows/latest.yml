@@ -18,7 +18,7 @@ jobs:
         run: |
           # 获取当前提交的哈希值
           COMMIT_HASH=$(git rev-parse HEAD)
-          echo "获取当前提交的哈希值 COMMIT_HASH=$COMMIT_HASH"
+          echo "获取当前提交的哈希值: COMMIT_HASH=$COMMIT_HASH"
 
           # 检查本地和远程是否已存在 'latest' 标签
           TAG_EXISTS_LOCAL=$(git tag -l "latest")
