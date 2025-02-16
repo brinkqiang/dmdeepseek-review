@@ -1,9 +1,9 @@
-name: Auto Update Latest Tag
+name: Auto Update Latest Tag via API
 
 on:
   push:
     branches:
-      - master  # 或者其他你希望触发标签创建的分支
+      - master
 
 jobs:
   create-latest-tag:
@@ -13,21 +13,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create or update 'latest' tag
+      - name: Create or update 'latest' tag via GitHub API
         run: |
-          # 获取当前的 git commit ID
-          LATEST_COMMIT=$(git rev-parse --short HEAD)
+          LATEST_COMMIT=$(git rev-parse HEAD)
+          TAG_EXISTS=$(curl -s \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/latest")
 
-          # 获取当前是否已有 'latest' 标签
-          TAG_EXISTS=$(git tag -l "latest")
-
-          if [ -z "$TAG_EXISTS" ]; then
+          if [ "$TAG_EXISTS" == "[]" ]; then
             echo "No 'latest' tag found. Creating a new tag."
-            git tag latest
+            curl -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -d "{\"ref\":\"refs/tags/latest\",\"sha\":\"$LATEST_COMMIT\"}" \
+              "https://api.github.com/repos/${{ github.repository }}/git/refs"
           else
-            echo "'latest' tag already exists. Updating to the latest commit."
-            git tag -f latest
+            echo "'latest' tag exists. Updating the tag."
+            curl -X PATCH \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -d "{\"sha\":\"$LATEST_COMMIT\"}" \
+              "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/latest"
           fi
-
-          # 推送最新标签到 GitHub
-          git push origin latest --force
