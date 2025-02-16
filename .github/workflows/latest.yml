@@ -1,0 +1,33 @@
+name: Auto Update Latest Tag
+
+on:
+  push:
+    branches:
+      - master  # 或者其他你希望触发标签创建的分支
+
+jobs:
+  create-latest-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create or update 'latest' tag
+        run: |
+          # 获取当前的 git commit ID
+          LATEST_COMMIT=$(git rev-parse --short HEAD)
+
+          # 获取当前是否已有 'latest' 标签
+          TAG_EXISTS=$(git tag -l "latest")
+
+          if [ -z "$TAG_EXISTS" ]; then
+            echo "No 'latest' tag found. Creating a new tag."
+            git tag latest
+          else
+            echo "'latest' tag already exists. Updating to the latest commit."
+            git tag -f latest
+          fi
+
+          # 推送最新标签到 GitHub
+          git push origin latest --force
