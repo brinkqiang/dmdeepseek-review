@@ -5,20 +5,20 @@
 name: Run Tests
 
 on:
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
+  #pull_request:
+  #  paths-ignore:
+  #    - '**.md'
+  #    - 'docs/**'
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - develop
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-  schedule:
-    - cron: '0 0 * * *'   # Run every morning at 0am UTC
+  #push:
+  #  branches:
+  #    - main
+  #    - develop
+  #  paths-ignore:
+  #    - '**.md'
+  #    - 'docs/**'
+  #schedule:
+  #  - cron: '0 0 * * *'   # Run every morning at 0am UTC
 
 permissions:
   contents: read
