@@ -1,35 +1,44 @@
-name: Auto Update Latest Tag via API
+name: Auto Update Latest Tag
 
 on:
   push:
     branches:
-      - master
-  workflow_dispatch:
+      - master  # 可以根据需要修改触发的分支
+  workflow_dispatch:  # 允许手动触发工作流
+
 jobs:
   create-latest-tag:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Create or update 'latest' tag via GitHub API
+      - name: Get latest commit hash
+        id: get_commit
         run: |
-          LATEST_COMMIT=$(git rev-parse HEAD)
-          TAG_EXISTS=$(curl -s \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/latest")
+          echo "commit_hash=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
-          if [ "$TAG_EXISTS" == "[]" ]; then
-            echo "No 'latest' tag found. Creating a new tag."
-            curl -X POST \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -d "{\"ref\":\"refs/tags/latest\",\"sha\":\"$LATEST_COMMIT\"}" \
-              "https://api.github.com/repos/${{ github.repository }}/git/refs"
-          else
-            echo "'latest' tag exists. Updating the tag."
-            curl -X PATCH \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -d "{\"sha\":\"$LATEST_COMMIT\"}" \
-              "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/latest"
-          fi
+      - name: Check if 'latest' tag exists
+        id: tag_check
+        run: |
+          TAG_EXISTS=$(git tag -l "latest")
+          echo "tag_exists=$TAG_EXISTS" >> $GITHUB_ENV
+
+      - name: Create or update 'latest' tag
+        if: ${{ env.tag_exists == '' }}
+        run: |
+          echo "No 'latest' tag found. Creating a new tag."
+          git tag latest ${{ env.commit_hash }}
+          git push origin latest
+
+      - name: Update 'latest' tag
+        if: ${{ env.tag_exists != '' }}
+        run: |
+          echo "'latest' tag exists. Updating the tag."
+          git tag -f latest ${{ env.commit_hash }}
+          git push origin latest --force
+
+      - name: Print current time
+        run: |
+          echo "The current UTC time is: $(date -u)"
