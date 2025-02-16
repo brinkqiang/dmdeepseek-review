@@ -29,10 +29,12 @@ jobs:
         run: |
           # 获取当前提交的哈希值
           COMMIT_HASH=$(git rev-parse HEAD)
-          
+          echo "COMMIT_HASH=$COMMIT_HASH"
+
           # 检查是否已存在 'latest' 标签
           TAG_EXISTS=$(git tag -l "latest")
-          
+          echo "TAG_EXISTS=$TAG_EXISTS"
+
           if [ -z "$TAG_EXISTS" ]; then
             echo "No 'latest' tag found. Creating a new tag."
             git tag latest $COMMIT_HASH
