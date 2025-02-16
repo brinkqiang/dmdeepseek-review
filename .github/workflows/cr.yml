@@ -22,11 +22,11 @@ jobs:
     # if: contains(github.event.pull_request.labels.*.name, 'ai review')
     steps:
       - name: DeepSeek Code Review
-        uses: hustcer/deepseek-review@develop
+        uses: brinkqiang/dmdeepseek-review@v1.0.1
         with:
           max-length: 50000
-          model: 'deepseek-v3'                          # Infinigence's DeepSeek V3 model
-          #model: 'deepseek-r1'                            # Infinigence's DeepSeek R1 model
+          #model: 'deepseek-v3'                          # Infinigence's DeepSeek V3 model
+          model: 'deepseek-r1'                            # Infinigence's DeepSeek R1 model
           #base-url: 'https://cloud.infini-ai.com/maas/v1' # Infinigence's API base URL
           # model: 'deepseek-ai/DeepSeek-V3'              # SiliconFlow's DeepSeek V3 model
           # model: 'deepseek-ai/DeepSeek-R1'              # SiliconFlow's DeepSeek R1 model
