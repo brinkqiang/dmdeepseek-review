@@ -26,17 +26,22 @@ jobs:
           echo "tag_exists=$TAG_EXISTS" >> $GITHUB_ENV
 
       - name: Create or update 'latest' tag
-        if: ${{ env.tag_exists == '' }}
         run: |
-          echo "No 'latest' tag found. Creating a new tag."
-          git tag latest ${{ env.commit_hash }}
-          git push origin latest
-
-      - name: Update 'latest' tag
-        if: ${{ env.tag_exists != '' }}
-        run: |
-          echo "'latest' tag exists. Updating the tag."
-          git tag -f latest ${{ env.commit_hash }}
+          # 获取当前提交的哈希值
+          COMMIT_HASH=$(git rev-parse HEAD)
+          
+          # 检查是否已存在 'latest' 标签
+          TAG_EXISTS=$(git tag -l "latest")
+          
+          if [ -z "$TAG_EXISTS" ]; then
+            echo "No 'latest' tag found. Creating a new tag."
+            git tag latest $COMMIT_HASH
+          else
+            echo "'latest' tag exists. Updating the tag."
+            git tag -f latest $COMMIT_HASH
+          fi
+          
+          # 强制推送 'latest' 标签到远程仓库
           git push origin latest --force
 
       - name: Print current time
