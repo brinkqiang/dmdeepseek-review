@@ -14,26 +14,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Get latest commit hash
-        id: get_commit
-        run: |
-          echo "commit_hash=$(git rev-parse HEAD)" >> $GITHUB_ENV
-
-      - name: Check if 'latest' tag exists
-        id: tag_check
-        run: |
-          TAG_EXISTS=$(git tag -l "latest")
-          echo "tag_exists=$TAG_EXISTS" >> $GITHUB_ENV
-
       - name: Create or update 'latest' tag
         run: |
           # 获取当前提交的哈希值
           COMMIT_HASH=$(git rev-parse HEAD)
-          echo "COMMIT_HASH=$COMMIT_HASH"
+          echo "获取当前提交的哈希值 COMMIT_HASH=$COMMIT_HASH"
 
           # 检查是否已存在 'latest' 标签
           TAG_EXISTS=$(git tag -l "latest")
-          echo "TAG_EXISTS=$TAG_EXISTS"
+          echo "检查是否已存在 'latest' 标签 TAG_EXISTS=$TAG_EXISTS"
 
           if [ -z "$TAG_EXISTS" ]; then
             echo "No 'latest' tag found. Creating a new tag."
